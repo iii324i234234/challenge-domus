@@ -23,7 +23,7 @@ public class Movie {
     String runtime;
 
     @JsonProperty("Genre")
-    MovieGenre genre;
+    String genre;
 
     @JsonProperty("Rated")
     MovieRating rated;
