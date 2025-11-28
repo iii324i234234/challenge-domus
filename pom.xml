@@ -16,12 +16,42 @@
     <artifactId>challenge</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>challenge</name>
-    <description>Challege for Domus Global</description>
+    <description>Challenge for Domus Global</description>
 
+    <!-- ===========================
+         INFORMACIÓN DEL PROYECTO
+         =========================== -->
+
+    <!-- URL del repositorio o sitio del proyecto -->
+    <url>https://github.com/iii324i234234/challenge-domus</url>
+
+    <!-- Información del desarrollador -->
+    <developers>
+        <developer>
+            <id>iii324i234234</id>
+            <name>Ivan Gnecco</name>
+            <email>gneccoivan@gmail.com</email>
+        </developer>
+    </developers>
+
+    <!-- SCM: Conexión al control de versiones -->
+    <!-- COMPLETAR: poner la URL de tu repo -->
+    <scm>
+        <connection>scm:git:https://github.com/iii324i234234/challenge-domus.git</connection>
+        <developerConnection>scm:git:https://github.com/iii324i234234/challenge-domus.git</developerConnection>
+        <url>https://github.com/iii324i234234/challenge-domus</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!-- Codificación estándar  -->
     <properties>
         <java.version>21</java.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok.version>1.18.32</lombok.version>
+
+        <!-- Encoding  -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -44,7 +74,7 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!-- DevTools -->
+        <!-- DevTools (solo desarrollo) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -58,7 +88,7 @@
             <version>2.8.6</version>
         </dependency>
 
-        <!-- Lombok (compile-time only) -->
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -66,14 +96,17 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MapStruct API -->
+        <!-- MapStruct API  -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.6.2</version>
+            <version>${mapstruct.version}</version>
         </dependency>
 
-        <!-- Testing -->
+        <!-- =================
+               TESTING
+         =================-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -93,6 +126,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Mockito para mockear clases finales -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
@@ -111,7 +145,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Compiler plugin (annotation processors configurados correctamente) -->
+            <!-- ============================
+                 COMPILER + PROCESSORS
+               ============================ -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -121,11 +157,14 @@
                     <target>${java.version}</target>
 
                     <annotationProcessorPaths>
+                        <!-- Lombok -->
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
+
+                        <!-- MapStruct processor -->
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
@@ -133,6 +172,44 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <!-- ============================
+                 TESTS: Surefire + Failsafe
+               ============================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+
+            <!-- ============================
+                 JACOCO - COVERAGE
+               ============================ -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
