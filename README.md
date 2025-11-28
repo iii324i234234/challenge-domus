@@ -1,73 +1,155 @@
-# Domus Back-End Developer Challenge.
+# Challenge API – Directors Threshold (Spring Boot · Java 21)
 
-## Description 
+## Descripcion
 
-In this challenge, the REST API contains information about a collection of movies released after the year 2010, directed by acclaimed directors.
-Given a threshold value, your task is to use the API to retrieve a list of directors who have directed more movies than the specified threshold. Specifically, the API should return the names of directors whose movie count is strictly greater than the given threshold, sorted alphabetically.
+Este proyecto es una REST API construida con Spring Boot (WebFlux) y Java 21.
+La aplicación consulta un servicio externo de películas, procesa sus páginas y devuelve los directores que superan un determinado número de películas.
 
-To access the movie collection, perform an HTTP GET request to the following endpoint:
+🚀 Características principales
 
+- Java 21 + Spring Boot WebFlux (reactivo).
+- Un único endpoint REST.
+- Llamadas a API externa con WebClient.
+- Manejo de errores centralizado.
+- Configuración por properties (timeouts, base URL, memoria, retry, logging).
+- MapStruct, Lombok y Reactor.
+
+##  📡 Endpoint disponible
+GET /api/directors?threshold={n}
+
+threshold es un entero ≥ 0.
+La API devuelve los directores cuya cantidad de películas es mayor al valor indicado.
+
+Ejemplo:
+http://localhost:8080/api/directors?threshold=4
+
+✔️ Respuesta exitosa (200)
 ```
-https://challenge.iugolabs.com/api/movies/search?page=<pageNumber>
-```
-
-where <pageNumber> is an integer denoting the page of the results to return.
-
-The response to such request is a JSON with the following 5 fields:
-
-- page: The current page of the results
-- per_page: The maximum number of movies returned per page.
-- total: The total number of movies on all pages of the result.
-- total_pages: The total number of pages with results.
-- data: An array of objects containing movies returned on the requested page
-
-Each movie record has the following schema:
-
-- Title: title of the movie
-- Year: year the movie was released
-- Rated: movie rating
-- Released: movie release date
-- Runtime: movie duration time in minutes
-- Genre: move genre
-- Director: movie director
-- Writer: movie writer 
-- Actors: movie actors  
-
-##  Task
-
-Fork the provided repository and implement a REST API endpoint using the provided template:
-
-```
-/api/directors?threshold=X
+{
+  "directors": [
+    "Christopher Nolan",
+    "James Cameron"
+  ]
+}
 ```
 
-This endpoint must return a JSON object containing the names of directors whose number of movies directed is strictly greater than the given threshold.
-
-The names should be returned in alphabetical order.
-
-Sample : `/api/directors?threshold=4`
-
-Json response:
+❌ Error validación (400)
 ```
-{  "directors": ["Martin Scorsese","Woody Allen"] }
+{
+  "error": "Invalid request parameter",
+  "detail": "threshold: Threshold must be a positive integer"
+}
 ```
 
-## Criteria
+##  📘 Cómo ver la documentación con Swagger / OpenAPI
 
-Some things we'll evaluate are:
+La API expone automáticamente la documentación generada por OpenAPI.
 
-- Correctness: The solution must return accurate results based on the given threshold. Ensure the route and query parameters are handled correctly.
-- Fail proof: The solution should handle errors and edge cases gracefully. Negative threshold values should return an empty list. Non-number thresholds should return an error message.
-- Tests: The solution should have tests.
-- Prefer newer technologies such as WebFlux over traditional RestTemplate.
-- Implement an intelligent solution for handling pagination.
-- Include Swagger documentation with detailed endpoint descriptions.
-- Documentation: Create an .md file explaining the solution and considerations.
-- Use external libraries like Lombok to facilitate things.
-- Correct use of Spring decorators such as @Service and @Autowired.
+Una vez levantada la aplicación, podés acceder a:
 
-## Submission
+👉 Swagger UI:
+```
+http://localhost:8080/swagger-ui/index.html
+```
 
-1. Fork the repository as a public repository.
-2. Implement the solution.
-3. Link the repository to the person who sent you the challenge.
+👉 OpenAPI JSON:
+```
+http://localhost:8080/v3/api-docs
+```
+
+Esto permite probar el endpoint desde el navegador, visualizar schemas, ver ejemplos y revisar los códigos de respuesta definidos en el controller.
+
+##  🧩 Arquitectura del proyecto
+src/main/java/domus/challenge/
+
+- config/   ........... WebClient + properties
+- controllers/  ...........  Controller REST
+- domain/     ........... Movie, DirectorCounter, State
+- dto/  ...................  DTOs de entrada/salida
+- exceptions/   ........... Errores externos y global handler
+- mappers/    ........... MapStruct
+- repository/     ........... Acceso a API externa (WebClient)
+- service/       ...........  Lógica de negocio
+- ChallengeApplication  ..Main app
+
+##  ⚙️ Configuración
+
+La URL base y parámetros del servicio externo están en:
+
+- src/main/resources/application.properties
+
+- movie.api.base-url=https://challenge.iugolabs.com/api/movies
+- movie.api.search-path=/search
+- movie.api.connect-timeout=5000
+- movie.api.response-timeout=10s
+- movie.api.read-timeout=20s
+- movie.api.write-timeout=20s
+- movie.api.max-in-memory-size=2MB
+- movie.api.retry.max-attempts=3
+- movie.api.retry.backoff=2s
+- movie.api.logging.enabled=true
+
+##  ▶️ Cómo ejecutar
+1. Requisitos
+
+- Java 21
+- Maven 3.9+
+
+2. Compilar
+mvn clean package
+
+3. Ejecutar
+mvn spring-boot:run
+
+4. Probar endpoint
+```
+curl "http://localhost:8080/api/directors?threshold=4"
+```
+
+##  🧪 Test
+
+El proyecto incluye el test básico de carga de contexto:
+
+ChallengeApplicationTests
+
+
+Podés ejecutar todos los tests:
+
+```
+mvn test
+```
+
+📖 Ejemplo de flujo interno
+
+- Controller recibe threshold.
+- Service pide todas las páginas al MovieRepository.
+- Se cuentan películas por director.
+- Se filtra según el umbral > threshold.
+- Se retorna el resultado en DirectorsResponseDto.
+- Si hay errores (4xx, 5xx, timeout, etc.), GlobalErrorHandler devuelve un JSON homogéneo.
+
+##  🛡️ Manejo de errores
+
+El proyecto diferencia:
+
+- 400 → errores de validación o parámetro faltante
+- 502 → errores 5xx del servicio externo
+- 503 → timeouts / servicio externo inalcanzable
+- 500 → errores inesperados
+
+Siempre responde con:
+
+```
+{ "error": "...", "detail": "..." }
+```
+
+##  📚 Tecnologías utilizadas
+Tecnología	Uso
+- Spring Boot WebFlux	API reactiva
+- Java 21	Lenguaje principal
+- Reactor (Mono/Flux)	Flujo reactivo
+- WebClient	Cliente HTTP
+- MapStruct	Mapping DTO
+- Lombok	Reducción de boilerplate
+- Validation / Jakarta	Validaciones de request
+- SLF4J / Logback	Logging

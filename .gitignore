@@ -31,3 +31,22 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Archivos compilados
+*.class
+
+# Carpeta target de Maven
+/target/
+
+# Archivos de IntelliJ / Eclipse
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Logs
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
